@@ -1,0 +1,5 @@
+https://github.com/g-truc/glm.git irgLab/dependencies/glm e7970a8b26732f1b0df9690f7180546f8c30e48e
+https://github.com/glfw/glfw.git irgLab/dependencies/glfw 3d89365f
+https://github.com/Dav1dde/glad.git irgLab/dependencies/glad 5bf3eda6
+https://github.com/assimp/assimp.git irgLab/dependencies/assimp 929bff18
+https://github.com/nothings/stb.git irgLab/dependencies/stb f1c79c02
