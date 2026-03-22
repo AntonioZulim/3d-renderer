@@ -11,15 +11,15 @@
 
 std::vector<std::pair<int, int> >klikovi;
 int width = 97, height = 97;
-bool is_cutting = false;
+bool isCutting = false;
 
 void provjeriFragment(Grafika& grafika, int x, int y, glm::vec3 boja) {
-	if (!is_cutting || (x>=width/4 && x<=3*width/4 && y>=height/4 && y<=3*height/4)) {
+	if (!isCutting || (x>=width/4 && x<=3*width/4 && y>=height/4 && y<=3*height/4)) {
 		grafika.osvijetliFragment(x, y, boja);
 	}
 }
 
-void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, glm::vec3 line_color) {
+void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, glm::vec3 lineColor) {
 	// ako je kut <90, 180] ili [-180, -90> zamijeni tocke
 	if (x0>x1) {
 		int t = x0;
@@ -45,11 +45,11 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, glm::vec3 l
 		int y = y0;
 		for (int x = x0; x<=x1; x++) {
 			if (a>1) {
-				provjeriFragment(grafika, y, x, line_color);
+				provjeriFragment(grafika, y, x, lineColor);
 				diff += 1/a;
 			}
 			else {
-				provjeriFragment(grafika, x, y, line_color);
+				provjeriFragment(grafika, x, y, lineColor);
 				diff += a;
 			}
 			if (diff>=0) {
@@ -73,11 +73,11 @@ void iscrtajLiniju(Grafika &grafika, int x0, int y0, int x1, int y1, glm::vec3 l
 		int y = y0;
 		for (int x = x0; x<=x1; x++) {
 			if (a<-1) {
-				provjeriFragment(grafika, y, x, line_color);
+				provjeriFragment(grafika, y, x, lineColor);
 				diff += 1/a;
 			}
 			else {
-				provjeriFragment(grafika, x, y, line_color);
+				provjeriFragment(grafika, x, y, lineColor);
 				diff += a;
 			}
 			if (diff<=0) {
@@ -96,8 +96,8 @@ void klikMisa(int x, int y, int vrsta) {
 		std::cout << x << " " << y<< std::endl;
 	}
 	if (vrsta == 1) {
-		is_cutting = !is_cutting;
-		std::cout << "okvir: " << is_cutting << std::endl;
+		isCutting = !isCutting;
+		std::cout << "okvir: " << isCutting << std::endl;
 	}
 }
 
@@ -124,12 +124,12 @@ int main(int argc, char * argv[]) {
 			}
 
 		// iscrtavanje okvira
-		if (is_cutting) {
-			glm::vec3 line_color(0, 1, 0);
-			iscrtajLiniju(grafika, width/4, height/4, 3*width/4, height/4, line_color);
-			iscrtajLiniju(grafika, width/4, 3*height/4, 3*width/4, 3*height/4, line_color);
-			iscrtajLiniju(grafika, width/4, height/4, width/4, 3*height/4, line_color);
-			iscrtajLiniju(grafika, 3*width/4, height/4, 3*width/4, 3*height/4, line_color);
+		if (isCutting) {
+			glm::vec3 lineColor(0, 1, 0);
+			iscrtajLiniju(grafika, width/4, height/4, 3*width/4, height/4, lineColor);
+			iscrtajLiniju(grafika, width/4, 3*height/4, 3*width/4, 3*height/4, lineColor);
+			iscrtajLiniju(grafika, width/4, height/4, width/4, 3*height/4, lineColor);
+			iscrtajLiniju(grafika, 3*width/4, height/4, 3*width/4, 3*height/4, lineColor);
 		}
 
 		//iscrtavanje linija
