@@ -26,8 +26,8 @@ glm::vec3 randomColor() {
 struct Poly {
 	std::vector<glm::vec3> verts;
 	std::vector<glm::vec3> edges;
-	bool isLeftOriented;
-	int minX, maxX, minY, maxY;
+	bool isLeftOriented = false;
+	int minY = 0, maxY = 0;
 };
 
 std::vector<std::pair<int, int> >klikovi;
@@ -132,15 +132,11 @@ void addVertex(int x, int y) {
 				polygon.verts.pop_back();
 			}
 		}
-		polygon.minX = std::min(polygon.minX, x);
-		polygon.maxX = std::max(polygon.maxX, x);
 		polygon.minY = std::min(polygon.minY, y);
 		polygon.maxY = std::max(polygon.maxY, y);
 		polygon.edges.push_back(edge);
 	}
 	else {
-		polygon.minX = x;
-		polygon.maxX = x;
 		polygon.minY = y;
 		polygon.maxY = y;
 	}
@@ -148,20 +144,40 @@ void addVertex(int x, int y) {
 }
 
 void fillPolygon(Grafika& grafika, glm::vec3 color, int height) {
+	std::vector<glm::vec3> leftEdges, rightEdges;
+	for (int i = 0; i<polygon.edges.size(); i++) {
+		if (polygon.isLeftOriented==(polygon.edges[i].x>0)) {
+			leftEdges.push_back(polygon.edges[i]);
+		}
+		else {
+			rightEdges.push_back(polygon.edges[i]);
+		}
+	}
+
 	for (int y = polygon.minY+1; y<=polygon.maxY; y++) {
 		glm::vec3 scanLine(0, 1, -y);
 		std::vector<glm::vec3> v;
-		for (int i = 0; i<polygon.edges.size(); i++) {
-			glm::vec3 t = glm::cross(polygon.edges[i], scanLine);
-			t /= t.z;
-			if (t.z!=0 && t.x>=polygon.minX && t.x<=polygon.maxX) {
+		glm::vec3 l, r;
+		for (int i = 0; i<leftEdges.size(); i++) {
+			glm::vec3 t = glm::cross(leftEdges[i], scanLine);
+			if (t.z!=0) {
+				t /= t.z;
 				v.push_back(t);
-				if (v.size()==2) {
-					break;
-				}
 			}
 		}
-		iscrtajLiniju(grafika, v[0].x, height - v[0].y - 1, v[1].x, height - v[1].y - 1, color);
+		std::sort(v.begin(), v.end(), [](const glm::vec3 &a, const glm::vec3 &b) {return a.x<b.x;});
+		l = v.back();
+		v.clear();
+		for (int i = 0; i<rightEdges.size(); i++) {
+			glm::vec3 t = glm::cross(rightEdges[i], scanLine);
+			if (t.z!=0) {
+				t /= t.z;
+				v.push_back(t);
+			}
+		}
+		std::sort(v.begin(), v.end(), [](const glm::vec3& a, const glm::vec3& b) {return a.x<b.x;});
+		r = v.front();
+		iscrtajLiniju(grafika, int(l.x), height - int(l.y) - 1, int(r.x), height - int(r.y) - 1, color);
 	}
 }
 
@@ -233,25 +249,28 @@ int main(int argc, char * argv[]) {
 			glm::vec3 color = isDrawing ? secondaryColor : primaryColor;
 			iscrtajLiniju(
 				grafika,
-				polygon.verts.front().x,
-				height - polygon.verts.front().y - 1,
-				polygon.verts.back().x,
-				height - polygon.verts.back().y - 1,
+				int(polygon.verts.front().x),
+				height - int(polygon.verts.front().y) - 1,
+				int(polygon.verts.back().x),
+				height - int(polygon.verts.back().y) - 1,
 				color
 			);
 		}
 		// pocetna tocka
 		else if (n==1) {
-			grafika.osvijetliFragment(polygon.verts.front().x, height - polygon.verts.front().y - 1, secondaryColor);
+			grafika.osvijetliFragment(
+				int(polygon.verts.front().x),
+				height - int(polygon.verts.front().y) - 1,
+				secondaryColor);
 		}
 		// nacrtani poligon
 		for (int i = 1; i < n; i++) {
 			iscrtajLiniju(
 				grafika,
-				polygon.verts[i-1].x,
-				height - polygon.verts[i-1].y - 1,
-				polygon.verts[i].x,
-				height - polygon.verts[i].y - 1,
+				int(polygon.verts[i-1].x),
+				height - int(polygon.verts[i-1].y) - 1,
+				int(polygon.verts[i].x),
+				height - int(polygon.verts[i].y) - 1,
 				primaryColor
 			);
 		}
