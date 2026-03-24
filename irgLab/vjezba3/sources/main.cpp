@@ -15,7 +15,17 @@
 
 #include <iostream>
 
-int width = 500, height = 500;
+int width = 800, height = 800;
+glm::vec3 drawingColor = glm::vec3(1, 1, 1);
+glm::vec3 adjustingColor = glm::vec3(1.0, 0, 0);
+float mouseX = 0, mouseY = 0;
+
+std::vector<float> polygonVertices;
+std::vector<unsigned int> polygonIndices;
+std::vector<unsigned int> linesIndices;
+GLuint VAO[3];
+GLuint VBO[2];
+GLuint EBO[2];
 
 //malo je nespretno napravljeno jer ne koristimo c++17, a treba podrzati i windows i linux,
 //slobodno pozivajte new Shader(...); direktno
@@ -52,11 +62,55 @@ void framebuffer_size_callback(GLFWwindow * window, int Width, int Height)
 {
 	width = Width;
 	height = Height;
-
 	glViewport(0, 0, width, height);
-
 }
-  
+ 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (key==GLFW_KEY_R && action==GLFW_PRESS) {
+		adjustingColor = glm::vec3(1, 0, 0);
+	}
+	if (key==GLFW_KEY_G && action==GLFW_PRESS) {
+		adjustingColor = glm::vec3(0, 1, 0);
+	}
+	if (key==GLFW_KEY_B && action==GLFW_PRESS) {
+		adjustingColor = glm::vec3(0, 0, 1);
+	}
+	glm::vec3 minColorComponent(0.0f);
+	glm::vec3 maxColorComponent(1.0f);
+	if (key==GLFW_KEY_DOWN && action==GLFW_PRESS) {
+		drawingColor = glm::clamp(drawingColor - 0.1f * adjustingColor, minColorComponent, maxColorComponent);
+	}
+	if (key==GLFW_KEY_UP && action==GLFW_PRESS) {
+		drawingColor = glm::clamp(drawingColor + 0.1f * adjustingColor, minColorComponent, maxColorComponent);
+	}
+}
+
+void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos) {
+	mouseX = xpos/(width/2)-1;
+	mouseY = (height-ypos)/(height/2)-1;
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (button==GLFW_MOUSE_BUTTON_LEFT && action==GLFW_PRESS) {
+		std::vector<float> tmp = { mouseX, mouseY, drawingColor.r, drawingColor.g, drawingColor.b };
+		polygonVertices.insert(polygonVertices.end(), tmp.begin(), tmp.end());
+
+		if (polygonVertices.size()>=3*5) {
+			polygonIndices.push_back(polygonVertices.size()/5-3);
+			polygonIndices.push_back(polygonVertices.size()/5-2);
+			polygonIndices.push_back(polygonVertices.size()/5-1);
+		}
+		linesIndices.push_back(linesIndices.size());
+		
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+		glBufferData(GL_ARRAY_BUFFER, (polygonVertices.size()+5) * sizeof(float), polygonVertices.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (polygonIndices.size()+5) * sizeof(unsigned int), polygonIndices.data(), GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (linesIndices.size()) * sizeof(unsigned int), linesIndices.data(), GL_DYNAMIC_DRAW);
+	}
+}
 
 int main(int argc, char * argv[]) {
 	std::cout << argv[0] << std::endl;
@@ -96,150 +150,157 @@ int main(int argc, char * argv[]) {
 	fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
 
-	glEnable(GL_DEPTH_TEST); //ukljuci z spremnik (prikazuju se oni fragmenti koji su najblizi promatracu)
+	//glEnable(GL_DEPTH_TEST); //ukljuci z spremnik (prikazuju se oni fragmenti koji su najblizi promatracu)
 	glDepthFunc(GL_LESS);
 
 	//glEnable(GL_CULL_FACE); //ukljuci uklanjanje straznjih poligona -- za ovaj primjer je iskljuceno
 	//glCullFace(GL_BACK); 
 
-	glClearColor(0.15, 0.1, 0.1, 1); //boja brisanja platna izmedu iscrtavanja dva okvira
+	glClearColor(0.15f, 0.1f, 0.1f, 1.0f); //boja brisanja platna izmedu iscrtavanja dva okvira
 
 
 	glfwSwapInterval(0); //ne cekaj nakon iscrtavanja (vsync)
 
-	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak X");
+	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 3");
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //funkcija koja se poziva prilikom mijenjanja velicine prozora
-	   	 
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_pos_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	
-	/*********************************************************************************************/
-	//indeksirani vrhovi i boje u odvojenim poljima. Konkretni podaci
+	std::cout << "Choose color component with keys r,g,b and change intensity of component with up and down arrow." << std::endl;
+	std::cout << "Bigger square represents current drawing color and smaller square represents chosen color component." << std::endl;
 
-	//svaki redak je jedna koordinata (x, y, z)
-	float indeksiraniVrhovi[18] = {
-			-1,  -1, 0,
-			 1,  -1, 0,
-			 0,   1, 0,
-			-0.4, -0.1, 0,
-			 0.4, -0.1, 0,
-			 0,  -0.9, 0
-	};
-
-	//svaki redak je jedna boja vezana uz vrh na istoj poziciji kao u prethodnom polju (r, g, b)
-	float indeksiraneBoje[18] = {
-		1, 0, 0,
-		0, 1, 0,
-		0, 0, 1,
-		0, 1, 1,
-		1, 0, 1,
-		1, 1, 0
-	};
-
-	//svaki redak je jedan trokut
-	unsigned int indeksi[12] = {
-		0, 5, 3,
-		3, 5, 4,
-		5, 1, 4,
-		3, 4, 2
-	};
-
-	//ucitavanje sjencara i dohvat uniform varijable
-
-	Shader *sjencar = loadShader(argv[0], "shader");
-	GLint lokacijaUniformVarijable = glGetUniformLocation(sjencar->ID, "tMatrica");
-
-	/*********************************************************************************************/
-	//prenosenje podataka i objasnjavanje u kojem formatu su ti podaci
-	//generiranje buffera
-	GLuint VAO;
-	GLuint VBO[2];
-	GLuint EBO;
-
-	glGenVertexArrays(1, &VAO);
+	glGenVertexArrays(3, VAO);
 	glGenBuffers(2, VBO);
-	glGenBuffers(1, &EBO);
+	glGenBuffers(2, EBO);
 
-	glBindVertexArray(VAO);
-		//buffer za koordinate i povezi s nultim mjestom u sjencaru -- layout (location = 0)
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(indeksiraniVrhovi), indeksiraniVrhovi, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		
-		//buffer za boje i povezi s prvim mjestom u sjencaru -- layout (location = 1)
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(indeksiraneBoje), indeksiraneBoje, GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// shader za color picker i crte
+	Shader *colorPickerShader = loadShader(argv[0], "color_picker");
+	GLint uniformVarPos = glGetUniformLocation(colorPickerShader->ID, "color");
 
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+	// kvadrat za color picker
+	float squarePos[] = {
+		-0.8f, -0.8f,
+		 0.8f, -0.8f,
+		-0.8f,  0.8f,
+		-0.8f,  0.8f,
+		 0.8f, -0.8f,
+		 0.8f,  0.8f
+	};
 
-		//buffer za indekse, moze biti samo jedan GL_ELEMENT_ARRAY_BUFFER po VAO
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indeksi), (void*)(&indeksi[0]), GL_STATIC_DRAW);
+	glBindVertexArray(VAO[0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(squarePos), squarePos, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void *) 0);
+	glEnableVertexAttribArray(0);
+
 	glBindVertexArray(0);
 
-	/*********************************************************************************************/
-	//"instanciranje objekata" svaka matrica reprezentira novu instancu objekta. Izrada polja transformacija koji  postavljaju objekte u mrezu 4x4
+	// crte
+	glBindVertexArray(VAO[2]);
 
-	glm::mat4 jedinicna = glm::mat4(1);
-	glm::mat4 skaliranje = glm::scale(jedinicna, glm::vec3(0.25, 0.25, 0.25));
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 
-	glm::mat4 poljeTransformacija[32];
-	
-	glm::vec3 osRotacije = glm::vec3(1, 0, 0);
-	float kutRotacije = 3.1415 / 32;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void*)0);
+	glEnableVertexAttribArray(0);
 
-	int brojac = 0;
-	for (float i = -1; i < 1; i+=0.5) {
-		for (float j = -1; j < 1; j+=0.5) {
-			poljeTransformacija[brojac] =  glm::translate(jedinicna, glm::vec3(j+0.25, i+0.25 , 0)) 
-										* skaliranje;
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
 
-			poljeTransformacija[brojac + 16] =  glm::translate(jedinicna, glm::vec3(j + 0.25, i + 0.25, 0)) *
-												glm::rotate(jedinicna, brojac * kutRotacije, osRotacije) * 
-												glm::rotate(jedinicna, (float)3.141592, glm::vec3(0, 0, 1)) *
-												skaliranje;
-			brojac++;
-		}
-	}
+	glBindVertexArray(0);
+
+	// poligon
+	Shader* polygonShader = loadShader(argv[0], "polygon");
+	glBindVertexArray(VAO[1]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	//glBufferData(GL_ARRAY_BUFFER, polygonVertices.size() * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void *) 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void *)(sizeof(float)*2));
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, polygonIndices.size() * sizeof(unsigned int), NULL, GL_DYNAMIC_DRAW);
+
+	glBindVertexArray(0);
 
 	/*********************************************************************************************/
 	//glavna petlja za prikaz
 	while (glfwWindowShouldClose(window) == false) {
 
-		float deltaTime = (float)FPSManagerObject.enforceFPS(false);
-
-		/****************************/
-		//osvjezavanje podataka 
-		poljeTransformacija[28] = poljeTransformacija[28]* glm::rotate(jedinicna, deltaTime *(float)3.141592/4, glm::vec3(0, 0, 1));
+		float deltaTime = (float)FPSManagerObject.enforceFPS(true);
 
 		//pobrisi platno
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, width, height);
 
 		/****************************/
-		//iscrtavanje
-		//za svaku instancu objekta saljemo naredbu za iscrtavanje. podaci o modelu ostaju na grafickoj, mijenja se samo uniform varijabla.
-		glUseProgram(sjencar->ID);
+		// dodavanje trenutne pozicije misa
+		if (polygonVertices.size()>=2*5) {
+			std::vector<float> tmp = { mouseX, mouseY, drawingColor.r, drawingColor.g, drawingColor.b };
+			polygonVertices.insert(polygonVertices.end(), tmp.begin(), tmp.end());
 
-		glBindVertexArray(VAO);
-			for (int i = 0; i <32; i++) {
-				glUniformMatrix4fv(lokacijaUniformVarijable, 1, GL_FALSE, &poljeTransformacija[i][0][0]);
-				glDrawElements(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0);  
-			}
+			polygonIndices.push_back(polygonVertices.size()/5-3);
+			polygonIndices.push_back(polygonVertices.size()/5-2);
+			polygonIndices.push_back(polygonVertices.size()/5-1);
+		}
+
+		// iscrtavanje poligona
+		glUseProgram(polygonShader->ID);
+		glBindVertexArray(VAO[1]);
+		glBufferSubData(GL_ARRAY_BUFFER, (polygonVertices.size()-5)*sizeof(float), 5*sizeof(float), polygonVertices.data()+polygonVertices.size()-5);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, (polygonIndices.size()-3)*sizeof(unsigned int), 3*sizeof(unsigned int), polygonIndices.data()+polygonIndices.size()-3);
+		glDrawElements(GL_TRIANGLES, polygonIndices.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+
+		// uklanjanje trenutne pozicije misa
+		if (polygonVertices.size()>=3*5) {
+			for (int i = 0; i<5; i++) {
+				polygonVertices.pop_back();
+			}
+			for (int i = 0; i<3; i++) {
+				polygonIndices.pop_back();
+			}
+		}
+
+		glUseProgram(colorPickerShader->ID);
+
+		// iscrtavanje crta
+		glBindVertexArray(VAO[2]);
+		glUniform3f(uniformVarPos, 0, 0, 0);
+		glLineWidth(3);
+		glDrawElements(GL_LINE_STRIP, linesIndices.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		// color picker i odabir komponente
+		glBindVertexArray(VAO[0]);
+
+		glUniform3f(uniformVarPos, drawingColor.r, drawingColor.g, drawingColor.b);
+		glViewport(0, 0, width/8, height/8);
+		glDrawArrays(GL_TRIANGLES, 0, 6); // kvadrat za boju crtanja
+
+		glUniform3f(uniformVarPos, adjustingColor.r, adjustingColor.g, adjustingColor.b);
+		glViewport(width/8, height/32, width/16, height/16);
+		glDrawArrays(GL_TRIANGLES, 0, 6); // kvadrat za odabir komponente boje
+
+		glBindVertexArray(0);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
-
 	}   
 		
-	delete sjencar;
+	delete colorPickerShader;
+	delete polygonShader;
 	glDeleteBuffers(2, VBO);
-	glDeleteBuffers(1, &EBO);
-	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(2, EBO);
+	glDeleteVertexArrays(3, VAO);
 
 	glfwTerminate();
 
