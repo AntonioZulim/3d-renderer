@@ -1,40 +1,11 @@
-#include "engine.h"
+#include "Geometry.h"
 
 #include <assimp/Importer.hpp>      
 #include <assimp/scene.h>           
 #include <assimp/postprocess.h>
 
 #include <iostream>
-
-// MyGLM
-glm::mat4 MyGLM::translate3D(glm::vec3 translateVector) { return glm::mat4(1.0f); }
-glm::mat4 MyGLM::scale3D(glm::vec3 scaleVector) { return glm::mat4(1.0f); }
-glm::mat4 MyGLM::rotate3D(glm::vec3 axis, float angle) { return glm::mat4(1.0f); }
-glm::mat4 MyGLM::lookAtMatrix(glm::vec3 eye, glm::vec3 center, glm::vec3 viewUp) { return glm::mat4(1.0f); }
-glm::mat4 MyGLM::frustum(float l, float r, float b, float t, float n, float f) { return glm::mat4(1.0f); }
-
-// Transform
-glm::mat4 Transform::getModelMatrix() const { return glm::mat4(1.0f); }
-glm::mat4 Transform::getViewMatrix() const { return glm::mat4(1.0f); }
-void Transform::rotateFPS(float xOffset, float yOffset, float constrainPitch) {}
-void Transform::rotate(glm::mat4 rot) {}
-void Transform::globalMove(glm::vec3 delta) {}
-void Transform::localMove(glm::vec3 delta) {}
-void Transform::setOrientation() {}
-void Transform::setPosition(glm::vec3 position) {
-	mPosition = position;
-}
-void Transform::scale(glm::vec3 scale) {
-	mScale = scale;
-}
-void Transform::update(float deltaTime) {}
-void Transform::registerAnimation(Lines* krivulja) {}
-
-// Texture
-int Texture::getTextureID() const { return 0; }
-
-// Camera
-glm::mat4 Camera::getPerspectiveMatrix(glm::vec2 screenSize) const { return glm::mat4(1.0f); }
+#include <filesystem>
 
 // Lines
 Lines::Lines(Lines* lines) {}
@@ -48,15 +19,8 @@ Lines* BezierBuilder::getControlPolygon() { return nullptr; }
 // TriangleMesh
 TriangleMesh::TriangleMesh(const std::string& currPath, const std::string& resourcePath) {
 	Assimp::Importer importer;
-
-	std::string path(currPath);
-	std::string dirPath(path, 0, path.find_last_of("\\/"));
-	std::string resPath(dirPath);
-	resPath.append("\\resources"); //za linux pretvoriti u forwardslash
-	std::string objPath(resPath);
-	objPath.append("\\" + resourcePath); //za linux pretvoriti u forwardslash
-
-	const aiScene* scene = importer.ReadFile(objPath.c_str(),
+	std::filesystem::path objPath = std::filesystem::path(currPath).parent_path() / "resources" / resourcePath;
+	const aiScene* scene = importer.ReadFile(objPath.string().c_str(),
 		aiProcess_CalcTangentSpace |
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
@@ -152,24 +116,3 @@ void TriangleMesh::draw() {
 	glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 	glBindVertexArray(0);
 }
-
-// Object
-void Object::render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, Light* light) {}
-
-// Renderer
-void Renderer::render() {}
-void Renderer::registerRenderable(Renderable* renderable) {}
-void Renderer::update(float deltaTime) {}
-
-// InputManager
-void InputManager::framebuffer_size_callback() {}
-void InputManager::mouse_callback() {}
-void InputManager::scroll_callback() {}
-void InputManager::mouse_button_callback() {}
-void InputManager::poll_events() {}
-void InputManager::register_movable(Transform* transform) {}
-
-// ResourceManager
-Object* ResourceManager::getScene(const std::string& name) { return nullptr; }
-Shader* ResourceManager::getShader(const std::string& name) { return nullptr; }
-Texture* ResourceManager::getTexture(const std::string& name) { return nullptr; }

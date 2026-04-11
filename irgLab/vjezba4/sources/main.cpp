@@ -1,69 +1,27 @@
 // Local Headers
 #include "Shader.h"
 #include "FPSManager.h"
-#include "engine.h"
+#include "Geometry.h"
+#include "Managers.h"
 
 // System Headers
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 // Standard Headers
 #include <cstdio>
 #include <cstdlib>
-
 #include <iostream>
+#include <filesystem>
 
-int width = 800, height = 800;
-glm::vec3 drawingColor = glm::vec3(1, 1, 1);
-glm::vec3 adjustingColor = glm::vec3(1.0, 0, 0);
-float mouseX = 0, mouseY = 0;
-
-std::vector<float> polygonVertices;
-std::vector<unsigned int> polygonIndices;
-std::vector<unsigned int> linesIndices;
-GLuint VAO[3];
-GLuint VBO[2];
-GLuint EBO[2];
-
-//malo je nespretno napravljeno jer ne koristimo c++17, a treba podrzati i windows i linux,
-//slobodno pozivajte new Shader(...); direktno
 Shader* loadShader(char* path, char* naziv) {
-	std::string sPath(path);
-	std::string pathVert;
-	std::string pathFrag;
-
-	pathVert.append(path, sPath.find_last_of("\\/") + 1);
-	pathFrag.append(path, sPath.find_last_of("\\/") + 1);
-	if (pathFrag[pathFrag.size() - 1] == '/') {
-		pathVert.append("shaders/");
-		pathFrag.append("shaders/");
-	}
-	else if (pathFrag[pathFrag.size() - 1] == '\\') {
-		pathVert.append("shaders\\");
-		pathFrag.append("shaders\\");
-	}
-	else {
-		std::cerr << "nepoznat format pozicije shadera";
-		exit(1);
-	}
-
-	pathVert.append(naziv);
-	pathVert.append(".vert");
-	pathFrag.append(naziv);
-	pathFrag.append(".frag");
+	std::filesystem::path sPath = std::filesystem::path(path).parent_path() / "shaders" / naziv;
+	std::string pathVert(sPath.string() + ".vert");
+	std::string pathFrag(sPath.string() + ".frag");
 
 	return new Shader(pathVert.c_str(), pathFrag.c_str());
-}
-
-//funkcija koja se poziva prilikom mijenjanja velicine prozora, moramo ju povezati pomocu glfwSetFramebufferSizeCallback
-void framebuffer_size_callback(GLFWwindow * window, int Width, int Height)
-{
-	width = Width;
-	height = Height;
-	glViewport(0, 0, width, height);
 }
 
 int main(int argc, char * argv[]) {
@@ -75,19 +33,13 @@ int main(int argc, char * argv[]) {
 	glfwInit();
 	gladLoadGL();
 
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-
-	window = glfwCreateWindow(width, height, "Zadatak 4", nullptr, nullptr);
+	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 4", nullptr, nullptr);
 	// provjeri je li se uspio napraviti prozor
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to Create OpenGL Context");
@@ -111,16 +63,14 @@ int main(int argc, char * argv[]) {
 	//glCullFace(GL_BACK); 
 
 	glClearColor(0.15f, 0.1f, 0.1f, 1.0f); //boja brisanja platna izmedu iscrtavanja dva okvira
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe iscrtavanje
 
 	glfwSwapInterval(0); //ne cekaj nakon iscrtavanja (vsync)
-
 	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 4");
 
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //funkcija koja se poziva prilikom mijenjanja velicine prozora
+	glfwSetFramebufferSizeCallback(window, InputManager::framebuffer_size_callback); //funkcija koja se poziva prilikom mijenjanja velicine prozora
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe iscrtavanje
-	Shader* shader = loadShader(argv[0], "shader"); // 
+	Shader* shader = loadShader(argv[0], "shader");
 
 	// dodavanje mesha
 	TriangleMesh* mesh = new TriangleMesh(argv[0], "glava\\glava.obj");
@@ -134,10 +84,10 @@ int main(int argc, char * argv[]) {
 
 		//pobrisi platno
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, width, height);
+		glViewport(0, 0, InputManager::width, InputManager::height);
 
 		// iscrtavanje mesha
-		glUseProgram(shader->ID);
+		shader->use();
 		mesh->draw();
 
 		glfwSwapBuffers(window);
@@ -148,9 +98,6 @@ int main(int argc, char * argv[]) {
 	}   
 		
 	delete shader;
-	glDeleteBuffers(2, VBO);
-	glDeleteBuffers(2, EBO);
-	glDeleteVertexArrays(3, VAO);
 
 	glfwTerminate();
 
