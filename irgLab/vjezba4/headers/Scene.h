@@ -26,7 +26,7 @@ public:
     void update(float deltaTime);
 
 private:
-    Camera mCamera;
+    Camera camera;
     Light  mLight;
     std::vector<Renderable*> mRenderables;
 };

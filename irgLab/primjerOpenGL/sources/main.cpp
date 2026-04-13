@@ -306,7 +306,7 @@ int main(int argc, char * argv[]) {
 		glUseProgram(sjencar[0]->ID); //koristi sjencar shader0
 		glUniform3f(lokacijaUniformVarijable, 0.5, 1.0, 1.0); //pogledaj shader0.vert
 	
-		glViewport(0, height/2, width/3, height/2); //u koji dio okvira prozora se iscrtava (gore lijevo)
+		glViewport(0, 2*height/3, width/3, height/3); //u koji dio okvira prozora se iscrtava (gore lijevo)
 
 		glBindVertexArray(VAO[0]); //koristi VAO[0] za crtanje
 		glDrawArrays(GL_TRIANGLES, 0, 3); //poziv crtanja
@@ -317,7 +317,7 @@ int main(int argc, char * argv[]) {
 
 		glUseProgram(sjencar[1]->ID);
 
-		glViewport(width/3, height/2, width/3, height/2);
+		glViewport(width/3, 2*height/3, width/3, height/3);
 
 		glBindVertexArray(VAO[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -327,7 +327,7 @@ int main(int argc, char * argv[]) {
 		//primjer 3
 
 		glUseProgram(sjencar[1]->ID);
-		glViewport(2*width/3, height/2, width/3, height/2);
+		glViewport(2*width/3, 2*height/3, width/3, height/3);
 
 		glBindVertexArray(VAO[2]);
 		glDrawElements(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0); //poziv crtanja s indeksima
@@ -337,7 +337,7 @@ int main(int argc, char * argv[]) {
 		//primjer 4a
 		//za svaku instancu objekta saljemo naredbu za iscrtavanje. podaci o modelu ostaju na grafickoj, mijenja se samo uniform varijabla.
 		glUseProgram(sjencar[2]->ID);
-		glViewport(0, 0, width / 3, height / 2);
+		glViewport(0, 0, width / 2, 2*height / 3);
 
 		glBindVertexArray(VAO[2]);
 				
@@ -354,7 +354,7 @@ int main(int argc, char * argv[]) {
 		//primjer 4b
 		//samo jednom pozivamo iscrtavanje za sve instance jer smo grafickoj poslali polje transformacija
 		glUseProgram(sjencar[3]->ID);
-		glViewport(width / 3,0, width / 3, height / 2);
+		glViewport(width / 2,0, width / 2, 2*height / 3);
 
 		glBindVertexArray(VAO[3]);
 		glDrawElementsInstanced(GL_TRIANGLES, sizeof(indeksi)/sizeof(unsigned int), GL_UNSIGNED_INT, 0, 16); //poziv crtanja s indeksima i instancama
