@@ -120,6 +120,7 @@ void Object::render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, Light* li
 // ---------- Renderer ----------
 Renderer::Renderer() {
 	InputManager::register_movable(&camera);
+	InputManager::movable_candidates.push_back(&camera);
 }
 
 void Renderer::render() {

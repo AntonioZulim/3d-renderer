@@ -101,6 +101,10 @@ int main(int argc, char * argv[]) {
 	renderer->registerRenderable(object);
 	renderer->registerRenderable(object2);
 
+	// dodavanje na listu za prebacivanje kontrola
+	InputManager::movable_candidates.push_back(object);
+	InputManager::movable_candidates.push_back(object2);
+
 	/*********************************************************************************************/
 	//glavna petlja za prikaz
 	while (glfwWindowShouldClose(window) == false) {

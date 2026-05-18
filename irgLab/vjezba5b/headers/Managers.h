@@ -10,6 +10,7 @@ public:
     static int width;
     static int height;
     static Transform* movable;
+    static std::vector<Transform*> movable_candidates;
     static void framebuffer_size_callback(GLFWwindow* window, int Width, int Height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);

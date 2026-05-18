@@ -5,6 +5,7 @@
 int InputManager::width = 800;
 int InputManager::height = 800;
 Transform* InputManager::movable = nullptr;
+std::vector<Transform*> InputManager::movable_candidates = std::vector<Transform*>();
 double InputManager::xLastPos = 0;
 double InputManager::yLastPos = 0;
 bool InputManager::isFirstCursorCallback = true;
@@ -65,6 +66,11 @@ void InputManager::poll_events(GLFWwindow* window) {
 	}
 	if (glfwGetKey(window, GLFW_KEY_Q)==GLFW_PRESS) {
 		movable->localMove(glm::vec3(0, sensitivity, 0));
+	}
+	for (int i = 0; i<movable_candidates.size() && i<10; i++) {
+		if (glfwGetKey(window, GLFW_KEY_0 + i)==GLFW_PRESS) {
+			InputManager::register_movable(movable_candidates[i]);
+		}
 	}
 }
 
