@@ -3,7 +3,6 @@
 #include "FPSManager.h"
 #include "Geometry.h"
 #include "Managers.h"
-#include "MyGLM.h"
 
 // System Headers
 #include <glad/glad.h>
@@ -15,15 +14,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <filesystem>
-
-Shader* loadShader(char* path, char* naziv) {
-	std::filesystem::path sPath = std::filesystem::path(path).parent_path() / "shaders" / naziv;
-	std::string pathVert(sPath.string() + ".vert");
-	std::string pathFrag(sPath.string() + ".frag");
-
-	return new Shader(pathVert.c_str(), pathFrag.c_str());
-}
 
 int main(int argc, char * argv[]) {
 	std::cout << argv[0] << std::endl;
@@ -40,7 +30,7 @@ int main(int argc, char * argv[]) {
 
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 5b", nullptr, nullptr);
+	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 4", nullptr, nullptr);
 	// provjeri je li se uspio napraviti prozor
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to Create OpenGL Context");
@@ -68,32 +58,34 @@ int main(int argc, char * argv[]) {
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // zakljucaj i sakrij kursor
 	glfwSwapInterval(0); //ne cekaj nakon iscrtavanja (vsync)
-	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 4");
+	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 6");
 
 	// callback funkcije
 	glfwSetScrollCallback(window, InputManager::scroll_callback);
 	glfwSetCursorPosCallback(window, InputManager::mouse_callback);
 	glfwSetFramebufferSizeCallback(window, InputManager::framebuffer_size_callback); //funkcija koja se poziva prilikom mijenjanja velicine prozora
 
-	Shader* shader = loadShader(argv[0], "shader");
+	// stvaranje shadera
+	Shader* shader_alg2 = new Shader(argv[0], "algorithm2", "shader", "algorithm2");
+	Shader* shader_alg3 = new Shader(argv[0], "algorithm3", "shader", "algorithm3");
 
 	// stvaranje mesha
 	TriangleMesh* mesh = new TriangleMesh(argv[0], "glava\\glava.obj");
 	mesh->normalize();
 
 	// stvaranje objekta i povezivanje sa shaderom i meshom
-	Object* object = new Object(shader);
+	Object* object = new Object(shader_alg2);
 	object->addRenderable(mesh);
 	object->setPosition(glm::vec3(0.5, 0.2, -2));
 	object->scale(glm::vec3(0.5, 0.5, 0.5));
 	object->globalMove(glm::vec3(-1, 0.1, 0));
 	object->setOrientation(glm::vec3(1, -2, 1), glm::vec3(1, 1, 1));
 
-	Object* object2 = new Object(shader);
+	Object* object2 = new Object(shader_alg3);
 	object2->addRenderable(mesh);
 	object2->scale(glm::vec3(0.2, 0.2, 0.2));
 	object2->setPosition(glm::vec3(0.7, 1.6, -1.8));
-	object2->rotate(MyGLM::rotate3D(glm::vec3(0, 1, 0), glm::radians(-45.0f)));
+	object2->rotate(glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0, 1, 0)));
 	object2->rotate(glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(1, 0, 0)));
 
 	// stvaranje renderera
@@ -116,9 +108,9 @@ int main(int argc, char * argv[]) {
 		glViewport(0, 0, InputManager::width, InputManager::height);
 
 		// iscrtavanje objekta
-		//object->localMove(glm::vec3(0, 0, 0.001));
+		shader_alg2->use();
+		shader_alg2->setUniform("eye", renderer->camera.getPosition());
 		renderer->render();
-
 
 		glfwSwapBuffers(window);
 		InputManager::poll_events(window);
@@ -127,7 +119,8 @@ int main(int argc, char * argv[]) {
 			glfwSetWindowShouldClose(window, true);
 	}   
 		
-	delete shader;
+	delete shader_alg2;
+	delete shader_alg3;
 
 	glfwTerminate();
 

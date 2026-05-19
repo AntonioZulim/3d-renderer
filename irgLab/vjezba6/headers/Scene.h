@@ -1,0 +1,96 @@
+#pragma once
+
+#include "Geometry.h"
+
+#define NOMINMAX
+#include <glm/glm.hpp>
+
+class Transform {
+public:
+    virtual ~Transform() = default;
+    glm::mat4 getModelMatrix() const;
+    glm::mat4 getViewMatrix() const;
+    void rotateFPS(float xOffset, float yOffset, bool constrainPitch);
+    void rotate(glm::mat4 rot);
+    void globalMove(glm::vec3 delta);
+    void localMove(glm::vec3 delta);
+    void setOrientation(glm::vec3 n, glm::vec3 viewUp);
+    void setPosition(glm::vec3 position);
+    glm::vec3 getPosition();
+    void scale(glm::vec3 scale);
+    void update(float deltaTime);
+    void registerAnimation(Lines* krivulja);
+
+private:
+    glm::vec3 mPosition = glm::vec3(0, 0, 0);
+    glm::vec3 mFront = glm::vec3(0, 0, 1);
+    glm::vec3 mUp = glm::vec3(0, 1, 0);
+    glm::vec3 mRight = glm::vec3(1, 0, 0);
+    glm::vec3 mScale = glm::vec3(1, 1, 1);
+    float mPitch = 0;
+    float mYaw = 0;
+};
+
+class Light : public Transform{
+private:
+    glm::vec3 mIntensity;
+    glm::vec3 mAmbientIntensity;
+};
+
+class Camera : public Transform{
+public:
+    virtual ~Camera() = default;
+    glm::mat4 getPerspectiveMatrix(float width, float height) const;
+    float getZoom();
+    void setZoom(float value);
+private:
+    float mZoom = 1;
+};
+
+class Texture {
+public:
+    int getTextureID() const;
+
+private:
+    int mTextureID;
+};
+
+class Material {
+public:
+    Shader* shader = nullptr;
+    Texture* texture = nullptr;
+
+private:
+    glm::vec3 mAmbientColor;
+    glm::vec3 mDiffuseColor;
+    glm::vec3 mSpecularColor;
+    float     mSpecularExponent;
+};
+
+class Object : public Transform{
+public:
+    Object(Shader* shader);
+    Object(Shader* shader, Material* material, Texture* texture);
+    void addRenderable(Renderable* renderable);
+    void render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, Light* light);
+
+private:
+    Shader* mShader;
+    Material* mMaterial;
+    Texture* mTexture;
+    std::vector<Renderable*> mRenderables;
+};
+
+class Renderer {
+public:
+    Camera camera;
+
+    Renderer();
+    void render();
+    void registerRenderable(Object* object);
+    void update(float deltaTime);
+
+private:
+    Light  mLight;
+    std::vector<Object*> mObjects;
+};

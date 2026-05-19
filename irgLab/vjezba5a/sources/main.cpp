@@ -39,7 +39,7 @@ int main(int argc, char * argv[]) {
 
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 4", nullptr, nullptr);
+	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 5a", nullptr, nullptr);
 	// provjeri je li se uspio napraviti prozor
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to Create OpenGL Context");
