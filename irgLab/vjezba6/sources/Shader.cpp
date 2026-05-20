@@ -25,14 +25,14 @@ void Shader::checkCompilerErrors(unsigned int shader, std::string type)
 	}
 }
 
-Shader::Shader(const char* path,const char* vert_name, const char* frag_name, const char* geom_name)
+Shader::Shader(const char* path,const char* vertName, const char* fragName, const char* geomName)
 {
 	std::filesystem::path sPath = std::filesystem::path(path).parent_path() / "shaders";
-	std::string pathVert = (sPath / vert_name).string() + ".vert";
-	std::string pathFrag = (sPath / frag_name).string() + ".frag";
+	std::string pathVert = (sPath / vertName).string() + ".vert";
+	std::string pathFrag = (sPath / fragName).string() + ".frag";
 	std::string pathGeom;
-	if (geom_name)
-		pathGeom = (sPath / geom_name).string() + ".geom";
+	if (geomName)
+		pathGeom = (sPath / geomName).string() + ".geom";
 	
 	const char* vertexPath = pathVert.c_str();
 	const char* fragmentPath = pathFrag.c_str();
@@ -65,7 +65,7 @@ Shader::Shader(const char* path,const char* vert_name, const char* frag_name, co
 		fragmentCode = fShaderStream.str();
 
 		// geometry
-		if (geom_name) {
+		if (geomName) {
 			gShaderFile.open(geometryPath);
 			std::stringstream gShaderStream;
 			gShaderStream << gShaderFile.rdbuf();
@@ -100,7 +100,7 @@ Shader::Shader(const char* path,const char* vert_name, const char* frag_name, co
 	checkCompilerErrors(fragment, "FRAGMENT");
 
 	// geometry Shader
-	if (geom_name) {
+	if (geomName) {
 		geometry = glCreateShader(GL_GEOMETRY_SHADER);
 		glShaderSource(geometry, 1, &gShaderCode, NULL);
 		glCompileShader(geometry);
@@ -111,7 +111,7 @@ Shader::Shader(const char* path,const char* vert_name, const char* frag_name, co
 	ID = glCreateProgram();
 	glAttachShader(ID, vertex);
 	glAttachShader(ID, fragment);
-	if (geom_name)
+	if (geomName)
 		glAttachShader(ID, geometry);
 	glLinkProgram(ID);
 	checkCompilerErrors(ID, "PROGRAM");

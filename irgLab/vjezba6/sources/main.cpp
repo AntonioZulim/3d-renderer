@@ -66,22 +66,22 @@ int main(int argc, char * argv[]) {
 	glfwSetFramebufferSizeCallback(window, InputManager::framebuffer_size_callback); //funkcija koja se poziva prilikom mijenjanja velicine prozora
 
 	// stvaranje shadera
-	Shader* shader_alg2 = new Shader(argv[0], "algorithm2", "shader", "algorithm2");
-	Shader* shader_alg3 = new Shader(argv[0], "algorithm3", "shader", "algorithm3");
+	Shader* shaderAlg2 = new Shader(argv[0], "algorithm2", "shader", "algorithm2");
+	Shader* shaderAlg3 = new Shader(argv[0], "algorithm3", "shader", "algorithm3");
 
 	// stvaranje mesha
 	TriangleMesh* mesh = new TriangleMesh(argv[0], "glava\\glava.obj");
 	mesh->normalize();
 
 	// stvaranje objekta i povezivanje sa shaderom i meshom
-	Object* object = new Object(shader_alg2);
+	Object* object = new Object(shaderAlg2);
 	object->addRenderable(mesh);
 	object->setPosition(glm::vec3(0.5, 0.2, -2));
 	object->scale(glm::vec3(0.5, 0.5, 0.5));
 	object->globalMove(glm::vec3(-1, 0.1, 0));
 	object->setOrientation(glm::vec3(1, -2, 1), glm::vec3(1, 1, 1));
 
-	Object* object2 = new Object(shader_alg3);
+	Object* object2 = new Object(shaderAlg3);
 	object2->addRenderable(mesh);
 	object2->scale(glm::vec3(0.2, 0.2, 0.2));
 	object2->setPosition(glm::vec3(0.7, 1.6, -1.8));
@@ -108,8 +108,8 @@ int main(int argc, char * argv[]) {
 		glViewport(0, 0, InputManager::width, InputManager::height);
 
 		// iscrtavanje objekta
-		shader_alg2->use();
-		shader_alg2->setUniform("eye", renderer->camera.getPosition());
+		shaderAlg2->use();
+		shaderAlg2->setUniform("eye", renderer->camera.getPosition());
 		renderer->render();
 
 		glfwSwapBuffers(window);
@@ -119,8 +119,8 @@ int main(int argc, char * argv[]) {
 			glfwSetWindowShouldClose(window, true);
 	}   
 		
-	delete shader_alg2;
-	delete shader_alg3;
+	delete shaderAlg2;
+	delete shaderAlg3;
 
 	glfwTerminate();
 
