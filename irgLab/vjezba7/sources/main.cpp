@@ -131,6 +131,7 @@ int main(int argc, char * argv[]) {
 		
 	delete shaderAlg2;
 	delete shaderAlg3;
+	delete shaderLine;
 
 	glfwTerminate();
 

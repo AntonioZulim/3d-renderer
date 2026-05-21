@@ -21,7 +21,7 @@ public:
     glm::vec3 getPosition();
     void scale(glm::vec3 scale);
     void update(float deltaTime);
-    void registerAnimation(Curve* krivulja);
+    void registerAnimation(Curve* curve, float duration = 1.0f);
 
 private:
     glm::vec3 mPosition = glm::vec3(0, 0, 0);
@@ -33,6 +33,7 @@ private:
     float mYaw = 0;
     Curve* animationCurve;
     float animationT;
+    float animationDuration = 1.0f;
     bool animating = false;
 };
 

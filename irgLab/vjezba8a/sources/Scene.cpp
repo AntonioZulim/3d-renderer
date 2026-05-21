@@ -73,19 +73,27 @@ void Transform::scale(glm::vec3 scale) {
 
 void Transform::update(float deltaTime) {
 	if (animating) {
-		animationT += deltaTime;
+		animationT += deltaTime / animationDuration;
 		if (animationT>=1.0f) {
 			animationT = 1.0f;
 			animating = false;
 		}
 		setPosition(Curve::calculateCurvePoint(animationCurve->interpCtrlPoints, animationT));
+
+		float delta = 0.0001f;
+		glm::vec3 pos = Curve::calculateCurvePoint(animationCurve->interpCtrlPoints, animationT);
+		glm::vec3 pos2 = Curve::calculateCurvePoint(animationCurve->interpCtrlPoints, glm::max(animationT+delta, 1.0f));
+		glm::vec3 tang = glm::normalize(pos2-pos);
+		setOrientation(-tang, glm::vec3(0, 1, 0));
 	}
 }
 
-void Transform::registerAnimation(Curve* curve) {
+void Transform::registerAnimation(Curve* curve, float duration) {
 	animationCurve = curve;
 	animationT = 0.0f;
+	animationDuration = duration;
 	animating = true;
+	update(0);
 }
 
 // ---------- Camera ----------

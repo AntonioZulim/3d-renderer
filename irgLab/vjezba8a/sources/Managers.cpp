@@ -56,7 +56,7 @@ void InputManager::key_callback(GLFWwindow* window, int key, int scancode, int a
 		bezierCurve->clearPoints();
 	}
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-		movable->registerAnimation(bezierCurve);
+		movable->registerAnimation(bezierCurve, 3.0f);
 	}
 	for (int i = 0; i<movable_candidates.size() && i<10; i++) {
 		if (key == GLFW_KEY_0 + i && action == GLFW_PRESS) {
