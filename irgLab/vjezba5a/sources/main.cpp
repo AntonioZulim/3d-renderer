@@ -67,7 +67,7 @@ int main(int argc, char * argv[]) {
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // zakljucaj i sakrij kursor
 	glfwSwapInterval(0); //ne cekaj nakon iscrtavanja (vsync)
-	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 4");
+	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 5a");
 
 	// callback funkcije
 	glfwSetScrollCallback(window, InputManager::scroll_callback);

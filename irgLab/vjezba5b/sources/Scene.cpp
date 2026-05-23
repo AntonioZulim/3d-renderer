@@ -75,7 +75,8 @@ void Transform::registerAnimation(Lines* krivulja) {}
 // ---------- Camera ----------
 glm::mat4 Camera::getPerspectiveMatrix(float width, float height) const {
 	float aspectRatio = width/height;
-	return MyGLM::frustum(-mZoom * aspectRatio, mZoom * aspectRatio, -mZoom, mZoom, 1.0f, 100.0f);
+	float nearDist = 0.2f;
+	return MyGLM::frustum(-mZoom * aspectRatio * nearDist, mZoom * aspectRatio * nearDist, -mZoom * nearDist, mZoom * nearDist, nearDist, 100.0f);
 }
 
 float Camera::getZoom() {
@@ -83,7 +84,7 @@ float Camera::getZoom() {
 }
 
 void Camera::setZoom(float value) {
-	if (value>=0.1 && value <=10)
+	if (value>=0.2 && value <=2)
 		mZoom = value;
 }
 
