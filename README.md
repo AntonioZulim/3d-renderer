@@ -4,8 +4,8 @@ Small 3D renderer made for the university course "Interactive Computer Graphics"
 Made using code template on: https://gitlab.com/irgtim/irglab.
 
 ## Tech stack
-- C++
-- OpenGL
+- C++17
+- OpenGL 3.x core profile
 - GLFW
 - GLAD
 - CMake
@@ -20,9 +20,8 @@ Made using code template on: https://gitlab.com/irgtim/irglab.
 Bresenham's line algorithm example with toggleable restricted drawing frame
 
 #### Controls:
-
-LEFT MOUSE BUTTON - add point<br>
-RIGHT MOUSE BUTTON - toggle drawing frame
+- LEFT MOUSE BUTTON - add point<br>
+- RIGHT MOUSE BUTTON - toggle drawing frame
 
 ![Assignment 1 showcase](media/vjezba1.gif)
 
