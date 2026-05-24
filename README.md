@@ -5,7 +5,7 @@ Made using code template on: https://gitlab.com/irgtim/irglab.
 
 ## Tech stack
 - C++17
-- OpenGL 3.x core profile
+- OpenGL 3.3+
 - GLFW
 - GLAD
 - CMake
