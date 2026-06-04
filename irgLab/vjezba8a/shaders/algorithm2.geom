@@ -30,8 +30,10 @@ void main()
 	vec3 r = normalize(2*dot(n, l)*n-l);
 
 	vec3 ambient = light.ambientIntensity * material.ka;
-	vec3 diffuse = light.intensity * material.kd * dot(l, n);
-	vec3 specular = light.intensity * material.ks * pow(max(0, dot(r, e)), material.ksn);
+	vec3 diffuse = light.intensity * material.kd * max(0, dot(l, n));
+	vec3 specular = vec3(0,0,0);
+	if(material.ksn>0)
+		specular = light.intensity * material.ks * pow(max(0, dot(r, e)), material.ksn);
 	vec3 color = ambient+diffuse+specular;
 
 	// uklanjanje straznjih poligona
