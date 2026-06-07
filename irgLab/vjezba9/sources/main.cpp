@@ -123,7 +123,7 @@ int main(int argc, char * argv[]) {
 	// dodavanje svjetla
 	Light* light = new Light();
 	light->setPosition(glm::vec3(-1, 1, 2));
-	light->mAmbientIntensity = glm::vec3(0.2, 0.2, 0.2);
+	light->mAmbientIntensity = glm::vec3(0.8, 0.8, 0.8);
 	light->mIntensity = glm::vec3(1, 1, 1);
 	renderer->light = *light;
 

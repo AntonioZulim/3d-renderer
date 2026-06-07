@@ -76,6 +76,7 @@ void main()
 	// teksture
 	if ((flags & HAS_DIFFUSE_MAP)!=0u){
 		diffuse = light.intensity * texture(diffuseMap, uv).rgb * max(0, dot(l, n));
+		ambient *= texture(diffuseMap, uv).rgb;
 	}
 	if ((flags & HAS_AO_MAP)!=0u){
 		ambient *= texture(AOMap, uv).r;

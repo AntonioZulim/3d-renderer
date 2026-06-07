@@ -191,6 +191,9 @@ TriangleMesh::TriangleMesh(const std::string& currPath, const std::string& resou
 			mat->Get(AI_MATKEY_COLOR_SPECULAR, specularK);
 			mat->Get(AI_MATKEY_SHININESS, shininessK);
 			mMaterial.mAmbientColor = glm::vec3(ambientK.r, ambientK.g, ambientK.b);
+			if (mMaterial.mAmbientColor == glm::vec3(1, 1, 1)) {
+				mMaterial.mAmbientColor = glm::vec3(0.2);
+			}
 			mMaterial.mDiffuseColor = glm::vec3(diffuseK.r, diffuseK.g, diffuseK.b);
 			mMaterial.mSpecularColor = glm::vec3(specularK.r, specularK.g, specularK.b);
 			mMaterial.mSpecularExponent = shininessK;
