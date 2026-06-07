@@ -29,7 +29,7 @@ Lines::Lines(std::vector<glm::vec3> verts, std::vector<glm::vec3> colors)
 	glBindVertexArray(0);
 }
 
-void Lines::draw() {
+void Lines::draw(Shader* shader) {
 	glBindVertexArray(mVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, mPosVBO);
@@ -53,8 +53,7 @@ TriangleMesh::TriangleMesh(const std::string& currPath, const std::string& resou
 		aiProcess_JoinIdenticalVertices |
 		aiProcess_SortByPType |
 		aiProcess_FlipUVs |
-		aiProcess_GenNormals
-
+		aiProcess_GenSmoothNormals
 	);
 
 	if (!scene) {
@@ -78,7 +77,6 @@ TriangleMesh::TriangleMesh(const std::string& currPath, const std::string& resou
 		if (scene->HasMaterials()) {
 			aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 
-			glm::vec3 ambientColor;
 			aiColor3D ambientK, diffuseK, specularK;
 			float shininessK;
 
@@ -164,7 +162,13 @@ void TriangleMesh::normalize() {
 	applyTransform(S*T);
 }
 
-void TriangleMesh::draw() {
+void TriangleMesh::draw(Shader* shader) {
+	// materijal
+	shader->setUniform("material.ka", mMaterial.mAmbientColor);
+	shader->setUniform("material.kd", mMaterial.mDiffuseColor);
+	shader->setUniform("material.ks", mMaterial.mSpecularColor);
+	shader->setUniform("material.ksn", mMaterial.mSpecularExponent);
+
 	glBindVertexArray(mVAO);
 	glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 	glBindVertexArray(0);

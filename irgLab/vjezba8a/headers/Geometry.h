@@ -10,12 +10,12 @@ public:
     glm::vec3 mAmbientColor;
     glm::vec3 mDiffuseColor;
     glm::vec3 mSpecularColor;
-    float     mSpecularExponent;
+    float mSpecularExponent;
 };
 
 class Renderable {
 public:
-    virtual void draw() = 0;
+    virtual void draw(Shader* shader) = 0;
     virtual ~Renderable() = default;
 
 protected:
@@ -25,7 +25,7 @@ protected:
 class Lines : public Renderable {
 public:
     Lines(std::vector<glm::vec3> verts = {}, std::vector<glm::vec3> colors = {});
-    void draw() override;
+    void draw(Shader* shader) override;
 private:
     std::vector<glm::vec3> mVertices;
     std::vector<glm::vec3> mColors;
@@ -39,7 +39,7 @@ public:
     void applyTransform(glm::mat4 mat);
     void getBoundingBox(std::pair<glm::vec3, glm::vec3>& bounds) const;
     void normalize();
-    void draw() override;
+    void draw(Shader* shader) override;
     Material* getMaterial();
 
 private:

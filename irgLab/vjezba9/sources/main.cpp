@@ -36,7 +36,7 @@ int main(int argc, char * argv[]) {
 
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 8a", nullptr, nullptr);
+	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 9", nullptr, nullptr);
 	// provjeri je li se uspio napraviti prozor
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to Create OpenGL Context");
@@ -66,7 +66,7 @@ int main(int argc, char * argv[]) {
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // zakljucaj i sakrij kursor
 	glfwSwapInterval(1); //ne cekaj nakon iscrtavanja (vsync)
-	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 8a");
+	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 9");
 
 	// callback funkcije
 	glfwSetScrollCallback(window, InputManager::scroll_callback);

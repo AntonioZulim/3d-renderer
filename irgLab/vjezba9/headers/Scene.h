@@ -63,7 +63,6 @@ public:
 private:
     std::vector<Renderable*> mRenderables;
     Shader* mShader;
-    //Material mMaterial;
 };
 
 class Curve : public Object {

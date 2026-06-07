@@ -116,10 +116,8 @@ void Camera::setZoom(float value) {
 int Texture::getTextureID() const { return 0; }
 
 // ---------- Object ----------
-Object::Object(Shader* shader, Material* material, Texture* texture) {
+Object::Object(Shader* shader) {
 	mShader = shader;
-	mMaterial = material;
-	mTexture = texture;
 }
 
 void Object::addRenderable(Renderable* renderable) {
@@ -133,9 +131,12 @@ void Object::clearRenderables() {
 	mRenderables.clear();
 }
 
-void Object::render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, Light& light) {
+void Object::render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, glm::vec3& eye, Light& light) {
 	glm::mat4 modelMatrix = getModelMatrix();
 	mShader->use();
+
+	// ociste kamere
+	mShader->setUniform("eye", eye);
 
 	// matrice
 	mShader->setUniform("modelMat", modelMatrix, false);
@@ -143,21 +144,13 @@ void Object::render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, Light& li
 	mShader->setUniform("perspectiveMat", perspectiveMatrix, false);
 	mShader->setUniform("normalMat", glm::transpose(glm::inverse(modelMatrix)), false);
 
-	if (mMaterial!=nullptr) {
-		// svjetlo
-		mShader->setUniform("light.position", light.getPosition());
-		mShader->setUniform("light.intensity", light.mIntensity);
-		mShader->setUniform("light.ambientIntensity", light.mAmbientIntensity);
-
-		// materijal
-		mShader->setUniform("material.ka", mMaterial->mAmbientColor);
-		mShader->setUniform("material.kd", mMaterial->mDiffuseColor);
-		mShader->setUniform("material.ks", mMaterial->mSpecularColor);
-		mShader->setUniform("material.ksn", mMaterial->mSpecularExponent);
-	}
+	// svjetlo
+	mShader->setUniform("light.position", light.getPosition());
+	mShader->setUniform("light.intensity", light.mIntensity);
+	mShader->setUniform("light.ambientIntensity", light.mAmbientIntensity);
 
 	for (auto renderable : mRenderables) {
-		renderable->draw();
+		renderable->draw(mShader);
 	}
 }
 
@@ -288,8 +281,11 @@ Renderer::Renderer() {
 }
 
 void Renderer::render() {
+	glm::mat4 perspectiveMat = camera.getPerspectiveMatrix(InputManager::width, InputManager::height);
+	glm::mat4 viewMat = camera.getViewMatrix();
+	glm::vec3 eye = camera.getPosition();
 	for (Object* obj : mObjects) {
-		obj->render(camera.getPerspectiveMatrix(InputManager::width, InputManager::height), camera.getViewMatrix(), light);
+		obj->render(perspectiveMat, viewMat, eye, light);
 	}
 }
 
@@ -297,4 +293,10 @@ void Renderer::registerRenderable(Object* object) {
 	mObjects.push_back(object);
 }
 
-void Renderer::update(float deltaTime) {}
+void Renderer::update(float deltaTime) {
+	camera.update(deltaTime);
+	light.update(deltaTime);
+	for (Object* obj : mObjects) {
+		obj->update(deltaTime);
+	}
+}

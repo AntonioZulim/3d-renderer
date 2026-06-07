@@ -30,7 +30,7 @@ int main(int argc, char * argv[]) {
 
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
-	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 8a", nullptr, nullptr);
+	window = glfwCreateWindow(InputManager::width, InputManager::height, "Zadatak 8c", nullptr, nullptr);
 	// provjeri je li se uspio napraviti prozor
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to Create OpenGL Context");
@@ -58,7 +58,7 @@ int main(int argc, char * argv[]) {
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // zakljucaj i sakrij kursor
 	glfwSwapInterval(0); //ne cekaj nakon iscrtavanja (vsync)
-	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 8a");
+	FPSManager FPSManagerObject(window, 60, 1.0, "Zadatak 8c");
 
 	// callback funkcije
 	glfwSetScrollCallback(window, InputManager::scroll_callback);
@@ -77,14 +77,14 @@ int main(int argc, char * argv[]) {
 	mesh->normalize();
 
 	// stvaranje objekta i povezivanje sa shaderom i meshom
-	Object* object = new Object(shaderAlg2, mesh->getMaterial());
+	Object* object = new Object(shaderAlg2);
 	object->addRenderable(mesh);
 	object->setPosition(glm::vec3(0.5, 0.2, -2));
 	object->scale(glm::vec3(0.5, 0.5, 0.5));
 	object->globalMove(glm::vec3(-1, 0.1, 0));
 	object->setOrientation(glm::vec3(1, -2, 1), glm::vec3(1, 1, 1));
 
-	Object* object2 = new Object(shaderAlg2, mesh->getMaterial());
+	Object* object2 = new Object(shaderAlg2);
 	object2->addRenderable(mesh);
 	object2->scale(glm::vec3(0.2, 0.2, 0.2));
 	object2->setPosition(glm::vec3(0.7, 1.6, -1.8));
@@ -92,7 +92,7 @@ int main(int argc, char * argv[]) {
 	object2->rotate(glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(1, 0, 0)));
 
 	//floorMesh->normalize();
-	Object* floor = new Object(shaderAlg2, floorMesh->getMaterial());
+	Object* floor = new Object(shaderAlg2);
 	floor->addRenderable(floorMesh);
 	floor->scale(glm::vec3(10, 0.1, 10));
 	floor->setPosition(glm::vec3(-5, -1, -5));
@@ -129,12 +129,10 @@ int main(int argc, char * argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, InputManager::width, InputManager::height);
 
-		// azuriranje animacije
-		renderer->camera.update(deltaTime);
+		// azuriranje animacija
+		renderer->update(deltaTime);
 
-		// iscrtavanje objekta
-		shaderAlg2->use();
-		shaderAlg2->setUniform("eye", renderer->camera.getPosition());
+		// iscrtavanje objekata
 		renderer->render();
 
 		glfwSwapBuffers(window);

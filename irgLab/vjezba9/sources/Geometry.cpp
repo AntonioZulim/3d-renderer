@@ -108,7 +108,6 @@ TriangleMesh::TriangleMesh(const std::string& currPath, const std::string& resou
 		aiProcess_SortByPType |
 		aiProcess_FlipUVs |
 		aiProcess_GenSmoothNormals
-
 	);
 
 	if (!scene) {

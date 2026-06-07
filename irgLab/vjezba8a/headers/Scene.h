@@ -63,16 +63,14 @@ private:
 
 class Object : public Transform{
 public:
-    Object(Shader* shader, Material* material = nullptr, Texture* texture = nullptr);
+    Object(Shader* shader);
     void addRenderable(Renderable* renderable);
     void clearRenderables();
-    void render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, Light& light);
+    void render(glm::mat4 perspectiveMatrix, glm::mat4 viewMatrix, glm::vec3& eye, Light& light);
 
 private:
     std::vector<Renderable*> mRenderables;
     Shader* mShader;
-    Material* mMaterial;
-    Texture* mTexture;
 };
 
 class Curve : public Object {

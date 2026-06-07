@@ -76,14 +76,14 @@ int main(int argc, char * argv[]) {
 	mesh->normalize();
 
 	// stvaranje objekta i povezivanje sa shaderom i meshom
-	Object* object = new Object(shaderAlg2, mesh->getMaterial());
+	Object* object = new Object(shaderAlg2);
 	object->addRenderable(mesh);
 	object->setPosition(glm::vec3(0.5, 0.2, -2));
 	object->scale(glm::vec3(0.5, 0.5, 0.5));
 	object->globalMove(glm::vec3(-1, 0.1, 0));
 	object->setOrientation(glm::vec3(1, -2, 1), glm::vec3(1, 1, 1));
 
-	Object* object2 = new Object(shaderAlg2, mesh->getMaterial());
+	Object* object2 = new Object(shaderAlg2);
 	object2->addRenderable(mesh);
 	object2->scale(glm::vec3(0.2, 0.2, 0.2));
 	object2->setPosition(glm::vec3(0.7, 1.6, -1.8));
@@ -121,12 +121,10 @@ int main(int argc, char * argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, InputManager::width, InputManager::height);
 
-		// azuriranje animacije
-		renderer->camera.update(deltaTime);
+		// azuriranje animacija
+		renderer->update(deltaTime);
 
-		// iscrtavanje objekta
-		shaderAlg2->use();
-		shaderAlg2->setUniform("eye", renderer->camera.getPosition());
+		// iscrtavanje objekata
 		renderer->render();
 
 		glfwSwapBuffers(window);
